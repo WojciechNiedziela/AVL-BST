@@ -11,15 +11,37 @@ class Node: #klasa tworząca nowy typ danych - wierzchołek
         self.left = None # jego lewe dziecko
         self.right = None # jego prawe dziecko
         self.val = key # warttosc wierzcholka
+
+    def print_inorder(self):
+        if self.left:
+            self.left.print_inorder()
+        print(self.val, end=' ')
+        if self.right:
+            self.right.print_inorder()
+
+    def print_postorder(self):
+        if self.left:
+            self.left.print_postorder()
+        if self.right:
+            self.right.print_postorder()
+        print(self.val, end=' ')
+
+    def print_preorder(self):
+        print(self.val, end=' ')
+        if self.left:
+            self.left.print_preorder()
+        if self.right:
+            self.right.print_preorder()
+
         
         
 def help():
-    print("Help Show this message")
-    print("Print Print the tree using In-order, Pre-order, Post-order")
-    print("Remove Remove elements of the tree")
-    print("Delete Delete whole tree")
-    print("Export Export the tree to tikzpicture")
-    print("Rebalance Rebalance the tree")
+    print("Help         -   Show this message")
+    print("Print        -   Print the tree using In-order, Pre-order, Post-order")
+    print("Remove       -   Remove elements of the tree")
+    print("Delete       -   Delete whole tree")
+    print("Export       -   Export the tree to tikzpicture")
+    print("Rebalance    -    Rebalance the tree")
     print("Exit Exits the program (same as ctrl+D)")
 
 
@@ -33,11 +55,6 @@ def insert(root, key): #funkcja czytajaca wierzcholek BST i ustawiająca go w od
             root.left = insert(root.left, key)
     return root
 
-def inorder(root):
-    if root:
-        inorder(root.left)
-        print(root.val),
-        inorder(root.right)
 
 def main():
     parser = argparse.ArgumentParser() #odpalenie programu przy pomocy komendy
@@ -56,10 +73,23 @@ def main():
         for num in nums:
             root = insert(root, num)
 
-        print("action> ", end="")
-        action = input().strip()
-        if action == "Help":
-            help()
+        while True:
+            print("action> ", end="")
+            action = input().strip()
+            if action == "Help":
+                help()
+            elif action == "Print":
+                print("Inorder: ", end="")
+                root.print_inorder()
+                print("\nPostorder: ", end="")
+                root.print_postorder()
+                print("\nPreorder: ", end="")
+                root.print_preorder()
+                print()
+            elif action == "Exit":
+                break
+
+
         
         
         # print("Inorder traversal of the BST is: ")
@@ -67,3 +97,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
