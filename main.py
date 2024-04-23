@@ -1,7 +1,6 @@
 # uruchomienie programu: python program.py --tree BST
 #
 # BST ToDO:
-#Remove
 #Export
 #Rebalance?
 #
@@ -56,6 +55,15 @@ class Node: #klasa tworząca nowy typ danych - wierzchołek
 
         return self.left.search(key) if self.left else None
     
+    def minValueNode(self):
+        current = self
+
+        while(current.left is not None):
+            current = current.left
+
+        return current
+    
+    
     def remove(self, key):
         if self is None:
             return self
@@ -67,13 +75,9 @@ class Node: #klasa tworząca nowy typ danych - wierzchołek
                 self.right = self.right.remove(key)
         else:
             if self.left is None:
-                temp = self.right
-                self = None
-                return temp
+                return self.right
             elif self.right is None:
-                temp = self.left
-                self = None
-                return temp
+                return self.left
             temp = self.right.minValueNode()
             self.val = temp.val
             self.right = self.right.remove(temp.val)
@@ -162,7 +166,10 @@ def main():
                 key = int(input("Enter the key to remove: "))
                 if root is not None and root.search(key) is not None:
                     root = root.remove(key)
-                    print("Node with key", key, "has been removed.")
+                    if root is not None:
+                        print("Node with key", key, "has been removed.")
+                    else:
+                        print("The tree is now empty.")
                 else:
                     print("Node with key", key, "does not exist in the tree.")
 
