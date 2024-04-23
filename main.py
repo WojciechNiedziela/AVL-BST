@@ -1,6 +1,9 @@
 # uruchomienie programu: python program.py --tree BST
 #
-#
+# BST ToDO:
+#Remove
+#Export
+#Rebalance?
 #
 
 import sys
@@ -43,6 +46,48 @@ class Node: #klasa tworząca nowy typ danych - wierzchołek
             max_val = self.right.find_min_max()[1]
 
         return min_val, max_val
+    
+    def search(self, key):
+        if self is None or self.val == key:
+            return self
+
+        if self.val < key:
+            return self.right.search(key) if self.right else None
+
+        return self.left.search(key) if self.left else None
+    
+    def remove(self, key):
+        if self is None:
+            return self
+        if key < self.val:
+            if self.left:
+                self.left = self.left.remove(key)
+        elif key > self.val:
+            if self.right:
+                self.right = self.right.remove(key)
+        else:
+            if self.left is None:
+                temp = self.right
+                self = None
+                return temp
+            elif self.right is None:
+                temp = self.left
+                self = None
+                return temp
+            temp = self.right.minValueNode()
+            self.val = temp.val
+            self.right = self.right.remove(temp.val)
+        return self
+    
+    def remove_all_post_order(self, first=True):
+        if first:
+            print("Deleting: ", end="")
+        if self.left:
+            self.left = self.left.remove_all_post_order(False)
+        if self.right:
+            self.right = self.right.remove_all_post_order(False)
+        print(self.val, end=' ')
+        return None
 
 
         
@@ -66,10 +111,6 @@ def insert(root, key): #funkcja czytajaca wierzcholek BST i ustawiająca go w od
             root.right = insert(root.right, key)
         else:
             root.left = insert(root.left, key)
-    return root
-
-def RemoveAll(root):
-    root = None
     return root
 
 
@@ -96,6 +137,7 @@ def main():
             action = input().strip()
             if action == "Help":
                 help()
+
             elif action == "FindMinMax":
                 if root is not None:
                     min_val, max_val = root.find_min_max()
@@ -103,6 +145,7 @@ def main():
                     print("Maximum value in the BST is: ", max_val)
                 else:
                     print("Drzewo jest puste")
+
             elif action == "Print":
                 if root is not None:
                     print("Inorder: ", end="")
@@ -114,9 +157,22 @@ def main():
                     print()
                 else:
                     print("Drzewo jest puste")
+
+            elif action == "Remove":
+                key = int(input("Enter the key to remove: "))
+                if root is not None and root.search(key) is not None:
+                    root = root.remove(key)
+                    print("Node with key", key, "has been removed.")
+                else:
+                    print("Node with key", key, "does not exist in the tree.")
+
             elif action == "RemoveAll":
-                root = RemoveAll(root)
-                print("All nodes have been removed from the tree.")
+                if root is not None:
+                    root = root.remove_all_post_order()
+                    print("\n All nodes have been removed from the tree.")
+                else:
+                    print("Drzewo jest puste")
+
             elif action == "Exit":
                 break
 
