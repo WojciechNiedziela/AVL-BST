@@ -9,7 +9,26 @@
 #Rebalance
 #
 
-import argparse
+import argparse, time
+
+def timer_decorator(func):
+    def wrapper(*args, **kwargs):
+        if not hasattr(wrapper, '_total_time'):
+            wrapper._total_time = 0
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        wrapper._total_time += end_time - start_time
+        return result
+    return wrapper
+
+def print_total_time(node, method_name):
+    func = getattr(node, method_name)
+    if hasattr(func, '_total_time'):
+        print(f"Łączny czas wykonania funkcji {func.__name__}: {func._total_time} sekund.")
+    else:
+        print(f"Funkcja {func.__name__} nie została jeszcze wywołana.")
+
 
 class Node: #klasa tworząca nowy typ danych - wierzchołek
     def __init__(self, key): # konstruktor pozwalający stworzyc nowy obiekt klasy
@@ -38,6 +57,7 @@ class Node: #klasa tworząca nowy typ danych - wierzchołek
         if self.right:
             self.right.print_preorder()
 
+    @timer_decorator
     def find_min_max(self): #zwraca wartosc wierzcholkow
         min_val = self.val
         max_val = self.val
@@ -130,7 +150,7 @@ def help():
     print("Rebalance    -   Rebalance the tree - only AVL")
     print("Exit Exits the program (same as ctrl+D)")
 
-
+# @timer_decorator
 def insert(root, key): #funkcja czytajaca wierzcholek BST i ustawiająca go w odpowiednim miejscu w zaleznosci od jego wartosci
     if root is None:
         return Node(key)
@@ -140,6 +160,9 @@ def insert(root, key): #funkcja czytajaca wierzcholek BST i ustawiająca go w od
         else:
             root.left = insert(root.left, key)
     return root
+
+
+
 
 
 
@@ -175,6 +198,9 @@ def main():
                         print("Maximum value in the BST is: ", max_val)
                     else:
                         print("Drzewo jest puste")
+
+                elif action == "PrintTotalTime":
+                    print_total_time(root, 'find_min_max')
 
                 elif action == "Print":
                     if root is not None:
