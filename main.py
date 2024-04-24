@@ -1,12 +1,15 @@
-# uruchomienie programu: python program.py --tree BST
+# uruchomienie programu: python program.py --tree BST / AVL
 #
-# BST ToDO:
-#HeredocExit
+#ToDO:
+#
+#Pomiar czasu - do sprawozdania
+#
+#AVL
+#Implementacja
+#Rebalance
 #
 
-import sys
 import argparse
-from pylatex import Document, TikZ, Axis, Plot
 
 class Node: #klasa tworząca nowy typ danych - wierzchołek
     def __init__(self, key): # konstruktor pozwalający stworzyc nowy obiekt klasy
@@ -35,7 +38,7 @@ class Node: #klasa tworząca nowy typ danych - wierzchołek
         if self.right:
             self.right.print_preorder()
 
-    def find_min_max(self):
+    def find_min_max(self): #zwraca wartosc wierzcholkow
         min_val = self.val
         max_val = self.val
 
@@ -46,7 +49,7 @@ class Node: #klasa tworząca nowy typ danych - wierzchołek
 
         return min_val, max_val
     
-    def search(self, key):
+    def search(self, key): #funkcja pomocnicza sprawdzający czy dany wierzchołek istnieje w drzewie
         if self is None or self.val == key:
             return self
 
@@ -55,7 +58,7 @@ class Node: #klasa tworząca nowy typ danych - wierzchołek
 
         return self.left.search(key) if self.left else None
     
-    def minValueNode(self):
+    def minValueNode(self): #zwraca najmniejszy wierzcholek
         current = self
 
         while(current.left is not None):
@@ -78,6 +81,7 @@ class Node: #klasa tworząca nowy typ danych - wierzchołek
                 return self.right
             elif self.right is None:
                 return self.left
+            
             temp = self.right.minValueNode()
             self.val = temp.val
             self.right = self.right.remove(temp.val)
@@ -99,7 +103,6 @@ class Node: #klasa tworząca nowy typ danych - wierzchołek
             tex_file.write(f"node {{{self.val}}}")
         else:
             tex_file.write(f"node {{{self.val}}}\n")
-            # tex_file.write(f"{{{self.val}}}\n")
             if self.left:
                 tex_file.write("    child { ")
                 self.left.export(tex_file)
@@ -115,8 +118,6 @@ class Node: #klasa tworząca nowy typ danych - wierzchołek
                 tex_file.write("    child [missing] ")
 
 
-
-
         
         
 def help():
@@ -126,7 +127,7 @@ def help():
     print("Remove       -   Remove elements of the tree")
     print("RemoveAll    -   Delete whole tree")
     print("Export       -   Export the tree to tikzpicture")
-    print("Rebalance    -    Rebalance the tree")
+    print("Rebalance    -   Rebalance the tree - only AVL")
     print("Exit Exits the program (same as ctrl+D)")
 
 
@@ -152,79 +153,94 @@ def main():
         n = int(input())
         print("insert> ", end="")
         nums = list(map(int, input().split()))
-        print("Inserting: ", end="")
-        print(*nums, sep=", ")
 
-        root = None
-        for num in nums:
-            root = insert(root, num)
+        if len(nums) == n:
+            print("Inserting: ", end="")
+            print(*nums, sep=", ")
 
-        while True:
-            print("action> ", end="")
-            action = input().strip()
-            if action == "Help":
-                help()
+            root = None
+            for num in nums:
+                root = insert(root, num)
 
-            elif action == "FindMinMax":
-                if root is not None:
-                    min_val, max_val = root.find_min_max()
-                    print("Minimum value in the BST is: ", min_val)
-                    print("Maximum value in the BST is: ", max_val)
-                else:
-                    print("Drzewo jest puste")
+            while True:
+                print("action> ", end="")
+                action = input().strip()
+                if action == "Help":
+                    help()
 
-            elif action == "Print":
-                if root is not None:
-                    print("Inorder: ", end="")
-                    root.print_inorder()
-                    print("\nPostorder: ", end="")
-                    root.print_postorder()
-                    print("\nPreorder: ", end="")
-                    root.print_preorder()
-                    print()
-                else:
-                    print("Drzewo jest puste")
-
-            elif action == "Remove":
-                key = int(input("Enter the key to remove: "))
-                if root is not None and root.search(key) is not None:
-                    root = root.remove(key)
+                elif action == "FindMinMax":
                     if root is not None:
-                        print("Node with key", key, "has been removed.")
+                        min_val, max_val = root.find_min_max()
+                        print("Minimum value in the BST is: ", min_val)
+                        print("Maximum value in the BST is: ", max_val)
                     else:
-                        print("The tree is now empty.")
-                else:
-                    print("Node with key", key, "does not exist in the tree.")
+                        print("Drzewo jest puste")
 
-            elif action == "RemoveAll":
-                if root is not None:
-                    root = root.remove_all_post_order()
-                    print("\n All nodes have been removed from the tree.")
-                else:
-                    print("Drzewo jest puste")
+                elif action == "Print":
+                    if root is not None:
+                        print("Inorder: ", end="")
+                        root.print_inorder()
+                        print("\nPostorder: ", end="")
+                        root.print_postorder()
+                        print("\nPreorder: ", end="")
+                        root.print_preorder()
+                        print()
+                    else:
+                        print("Drzewo jest puste")
 
+                elif action == "Remove":
+                    key = int(input("Enter the key to remove: "))
+                    if root is not None and root.search(key) is not None:
+                        root = root.remove(key)
+                        if root is not None:
+                            print("Node with key", key, "has been removed.")
+                        else:
+                            print("The tree is now empty.")
+                    else:
+                        print("Node with key", key, "does not exist in the tree.")
 
-            elif action == "Export":
-                if root is not None:
-                    with open("tree.tex", "w") as tex_file:
-                        tex_file.write("\\documentclass{standalone}\n")
-                        tex_file.write("\\usepackage{tikz}\n")
-                        tex_file.write("\\begin{document}\n")
-                        tex_file.write("\\begin{tikzpicture}\n")
-                        tex_file.write("[->,>=stealth',level/.style={sibling distance = 7cm/#1, level distance = 1.5cm}]\n")
-                        # tex_file.write("\\node {")
-                        tex_file.write("\\")
-                        root.export(tex_file)
-                        # tex_file.write("};\n")
-                        tex_file.write(";\n")
-                        tex_file.write("\\end{tikzpicture}\n")
-                        tex_file.write("\\end{document}\n")
-                else:
-                    print("The tree is empty")
+                elif action == "RemoveAll":
+                    if root is not None:
+                        root = root.remove_all_post_order()
+                        print("\n All nodes have been removed from the tree.")
+                    else:
+                        print("Drzewo jest puste")
+
+                elif action == "Export":
+                    if root is not None:
+                        with open("tree.tex", "w") as tex_file:
+                            tex_file.write("\\documentclass{standalone}\n")
+                            tex_file.write("\\usepackage{tikz}\n")
+                            tex_file.write("\\begin{document}\n")
+                            tex_file.write("\\begin{tikzpicture}\n")
+                            tex_file.write("[->,>=stealth',level/.style={sibling distance = 7cm/#1, level distance = 1.5cm}]\n")
+                            tex_file.write("\\")
+                            root.export(tex_file)
+                            tex_file.write(";\n")
+                            tex_file.write("\\end{tikzpicture}\n")
+                            tex_file.write("\\end{document}\n")
+                        print("Export to file tree.tex succeeded")
+                    else:
+                        print("The tree is empty")
                 
-            elif action == "Exit":
-                break
+                elif action == "Exit":
+                    break
 
+        else:
+            print("Ilość podanych wierzchołków nie jest równa n")
+
+        
+        
+
+    if args.tree == "AVL":
+        print("nodes> ", end="")
+        n = int(input())
+        print("insert> ", end="")
+        nums = list(map(int, input().split()))
+        if len(nums) == n:
+            print("TODO")
+        else:
+            print("Ilość podanych wierzchołków nie jest równa n")
 
 if __name__ == "__main__":
     main()
