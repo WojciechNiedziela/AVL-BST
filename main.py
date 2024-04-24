@@ -1,12 +1,12 @@
 # uruchomienie programu: python program.py --tree BST
 #
 # BST ToDO:
-#Export
-#Rebalance?
+#HeredocExit
 #
 
 import sys
 import argparse
+from pylatex import Document, TikZ, Axis, Plot
 
 class Node: #klasa tworząca nowy typ danych - wierzchołek
     def __init__(self, key): # konstruktor pozwalający stworzyc nowy obiekt klasy
@@ -92,6 +92,29 @@ class Node: #klasa tworząca nowy typ danych - wierzchołek
             self.right = self.right.remove_all_post_order(False)
         print(self.val, end=' ')
         return None
+    
+    
+    def export(self, tex_file):
+        if not self.left and not self.right:
+            tex_file.write(f"node {{{self.val}}}")
+        else:
+            tex_file.write(f"node {{{self.val}}}\n")
+            # tex_file.write(f"{{{self.val}}}\n")
+            if self.left:
+                tex_file.write("    child { ")
+                self.left.export(tex_file)
+                tex_file.write(" } ")
+            else:
+                tex_file.write("    child[missing] ")
+        
+            if self.right:
+                tex_file.write("    child { ")
+                self.right.export(tex_file)
+                tex_file.write(" } ")
+            else:
+                tex_file.write("    child [missing] ")
+
+
 
 
         
@@ -180,6 +203,25 @@ def main():
                 else:
                     print("Drzewo jest puste")
 
+
+            elif action == "Export":
+                if root is not None:
+                    with open("tree.tex", "w") as tex_file:
+                        tex_file.write("\\documentclass{standalone}\n")
+                        tex_file.write("\\usepackage{tikz}\n")
+                        tex_file.write("\\begin{document}\n")
+                        tex_file.write("\\begin{tikzpicture}\n")
+                        tex_file.write("[->,>=stealth',level/.style={sibling distance = 7cm/#1, level distance = 1.5cm}]\n")
+                        # tex_file.write("\\node {")
+                        tex_file.write("\\")
+                        root.export(tex_file)
+                        # tex_file.write("};\n")
+                        tex_file.write(";\n")
+                        tex_file.write("\\end{tikzpicture}\n")
+                        tex_file.write("\\end{document}\n")
+                else:
+                    print("The tree is empty")
+                
             elif action == "Exit":
                 break
 

@@ -1,0 +1,13 @@
+\documentclass{standalone}
+\usepackage{tikz}
+\begin{document}
+\begin{tikzpicture}
+[->,>=stealth',level/.style={sibling distance = 7cm/#1, level distance = 1.5cm}]
+\node {8}
+    child { node {5}
+    child { node {2} }     child { node {6} }  }     child { node {13}
+    child { node {11}
+    child { node {9}
+    child[missing]     child { node {10} }  }     child { node {12} }  }     child { node {14} }  } ;
+\end{tikzpicture}
+\end{document}
