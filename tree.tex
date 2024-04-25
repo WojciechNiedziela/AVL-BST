@@ -3,8 +3,9 @@
 \begin{document}
 \begin{tikzpicture}
 [->,>=stealth,level/.style={sibling distance = 7cm/#1, level distance = 1.5cm}]
-\node {20}
-    child { node {5}
-    child { node {1} }     child { node {10} }  }     child { node {35} } ;
+\node {3}
+    child { node {2}
+    child { node {1} }     child [missing]  }     child { node {8}
+    child { node {6} }     child [missing]  } ;
 \end{tikzpicture}
 \end{document}

@@ -227,19 +227,24 @@ class AVLNode:
             self.right.print_preorder()
 
     # Metody do eksportu do TikZ
-    def export_to_tikz(self, tex_file):
-        tex_file.write(f"node {{{self.val}}}")
-        if self.left or self.right:
-            tex_file.write("{ ")
+    def export(self, tex_file):
+        if not self.left and not self.right:
+            tex_file.write(f"node {{{self.val}}}")
+        else:
+            tex_file.write(f"node {{{self.val}}}\n")
             if self.left:
-                self.left.export_to_tikz(tex_file)
+                tex_file.write("    child { ")
+                self.left.export(tex_file)
+                tex_file.write(" } ")
             else:
-                tex_file.write("child[missing] ")
+                tex_file.write("    child[missing] ")
+        
             if self.right:
-                self.right.export_to_tikz(tex_file)
+                tex_file.write("    child { ")
+                self.right.export(tex_file)
+                tex_file.write(" } ")
             else:
-                tex_file.write("child[missing] ")
-            tex_file.write("}")
+                tex_file.write("    child [missing] ")
 
     # Metoda do znajdowania najmniejszego elementu w drzewie
     def minValueNode(self):
@@ -544,13 +549,21 @@ def main():
                     print(f"Min: {min_node.val}\nMax: {max_node.val}")
 
                 elif action == "export":
-                    with open("tree.tikz", "w") as tex_file:
-                        tex_file.write("\\begin{tikzpicture}[sibling distance=3cm, level distance=1.5cm]\n")
-                        tex_file.write("\\node {")
-                        root.export_to_tikz(tex_file)
-                        tex_file.write("};\n")
-                        tex_file.write("\\end{tikzpicture}\n")
-                    print("Tree exported to tree.tikz")
+                    if root is not None:
+                        with open("tree.tex", "w") as tex_file:
+                            tex_file.write("\\documentclass{standalone}\n")
+                            tex_file.write("\\usepackage{tikz}\n")
+                            tex_file.write("\\begin{document}\n")
+                            tex_file.write("\\begin{tikzpicture}\n")
+                            tex_file.write("[->,>=stealth,level/.style={sibling distance = 7cm/#1, level distance = 1.5cm}]\n")
+                            tex_file.write("\\")
+                            root.export(tex_file)
+                            tex_file.write(";\n")
+                            tex_file.write("\\end{tikzpicture}\n")
+                            tex_file.write("\\end{document}\n")
+                        print("Export to file tree.tex succeeded")
+                    else:
+                        print("The tree is empty")
 
                 elif action == "remove":
                     print("remove> ", end="")
