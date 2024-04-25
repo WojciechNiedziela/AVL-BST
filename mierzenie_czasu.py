@@ -2,6 +2,25 @@
 
 import argparse, time, math
 
+def timer_decorator(func):
+    def wrapper(*args, **kwargs):
+        if not hasattr(wrapper, '_total_time'):
+            wrapper._total_time = 0
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        wrapper._total_time += end_time - start_time
+        return result
+    return wrapper
+
+def print_total_time(node, method_name):
+    func = getattr(node, method_name)
+    if hasattr(func, '_total_time'):
+        print(f"Łączny czas wykonania funkcji {func.__name__}: {func._total_time} sekund.")
+    else:
+        print(f"Funkcja {func.__name__} nie została jeszcze wywołana.")
+
+
 class Node: #klasa tworząca nowy typ danych - wierzchołek
     def __init__(self, key): # konstruktor pozwalający stworzyc nowy obiekt klasy
         self.left = None # jego lewe dziecko
@@ -29,6 +48,7 @@ class Node: #klasa tworząca nowy typ danych - wierzchołek
         if self.right:
             self.right.print_preorder()
 
+    @timer_decorator
     def find_min_max(self): #zwraca wartosc wierzcholkow
         min_val = self.val
         max_val = self.val
@@ -107,6 +127,9 @@ class Node: #klasa tworząca nowy typ danych - wierzchołek
                 tex_file.write(" } ")
             else:
                 tex_file.write("    child [missing] ")
+
+
+        
         
 def help():
     print("Help         -   Show this message")
@@ -118,6 +141,7 @@ def help():
     print("Rebalance    -   Rebalance the tree - only AVL")
     print("Exit Exits the program (same as ctrl+D)")
 
+@timer_decorator
 def insert(root, key): #funkcja czytajaca wierzcholek BST i ustawiająca go w odpowiednim miejscu w zaleznosci od jego wartosci
     if root is None:
         return Node(key)
@@ -127,6 +151,7 @@ def insert(root, key): #funkcja czytajaca wierzcholek BST i ustawiająca go w od
         else:
             root.left = insert(root.left, key)
     return root
+
 
 def bstToVine(grand: Node) -> int:
     count = 0
@@ -190,7 +215,7 @@ def main():
             root = None
             for num in nums:
                 root = insert(root, num)
-
+                
             while True:
                 print("action> ", end="")
                 action = input().strip()
@@ -206,7 +231,7 @@ def main():
                         print("Drzewo jest puste")
 
                 elif action == "PrintTotalTime":
-                    print_total_time(root, 'insert')
+                    print_total_time(root, 'abc')
 
                 elif action == "Print":
                     if root is not None:
@@ -269,6 +294,9 @@ def main():
 
         else:
             print("Ilość podanych wierzchołków nie jest równa n")
+
+        
+        
 
     if args.tree == "AVL":
         print("nodes> ", end="")
