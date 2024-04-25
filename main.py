@@ -529,24 +529,30 @@ def main():
                 action = input().strip().lower()
                 
                 if action == "print":
-                    print("In-order:", end=" ")
-                    root.print_inorder()
-                    print("\nPost-order:", end=" ")
-                    root.print_postorder()
-                    print("\nPre-order:", end=" ")
-                    root.print_preorder()
-                    print()
+                    if root is not None:
+                        print("In-order:", end=" ")
+                        root.print_inorder()
+                        print("\nPost-order:", end=" ")
+                        root.print_postorder()
+                        print("\nPre-order:", end=" ")
+                        root.print_preorder()
+                        print()
+                    else:
+                        print("Drzewo jest puste")
 
                 elif action == "help":
                     help()
                 
                 elif action == "findMinMax":
-                    min_node = root.minValueNode()
-                    current = root
-                    while current.right:
-                        current = current.right
-                    max_node = current
-                    print(f"Min: {min_node.val}\nMax: {max_node.val}")
+                    if root is not None:
+                        min_node = root.minValueNode()
+                        current = root
+                        while current.right:
+                            current = current.right
+                        max_node = current
+                        print(f"Min: {min_node.val}\nMax: {max_node.val}")
+                    else:
+                        print("Drzewo jest puste")
 
                 elif action == "export":
                     if root is not None:
@@ -566,15 +572,22 @@ def main():
                         print("The tree is empty")
 
                 elif action == "remove":
-                    print("remove> ", end="")
-                    to_remove = list(map(int, input().split()))
-                    for val in to_remove:
-                        root = root.remove(val)
-                    print("Elements removed")
+                    if root is not None:
+                        print("remove> ", end="")
+                        to_remove = list(map(int, input().split()))
+                        for val in to_remove:
+                            root = root.remove(val)
+                        print("Elements removed")
+                    else:
+                        print("Cannot remove: tree is empty.")
 
                 elif action == "removeall":
-                    root = None
-                    print("Tree deleted")
+                    if root is not None:
+                        root.delete_all_postorder()
+                        root = None
+                        print("Tree deleted")
+                    else:
+                        print("Cannot delete: tree is empty.")
                 
                 elif action == "rebalance":
                     if root is not None:
