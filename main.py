@@ -1,34 +1,6 @@
 # uruchomienie programu: python program.py --tree BST / AVL
-#
-#ToDO:
-#
-#Pomiar czasu - do sprawozdania
-#
-#AVL
-#Implementacja
-#Rebalance
-#
 
-import argparse, time
-
-def timer_decorator(func):
-    def wrapper(*args, **kwargs):
-        if not hasattr(wrapper, '_total_time'):
-            wrapper._total_time = 0
-        start_time = time.time()
-        result = func(*args, **kwargs)
-        end_time = time.time()
-        wrapper._total_time += end_time - start_time
-        return result
-    return wrapper
-
-def print_total_time(node, method_name):
-    func = getattr(node, method_name)
-    if hasattr(func, '_total_time'):
-        print(f"Łączny czas wykonania funkcji {func.__name__}: {func._total_time} sekund.")
-    else:
-        print(f"Funkcja {func.__name__} nie została jeszcze wywołana.")
-
+import argparse, time, math
 
 class Node: #klasa tworząca nowy typ danych - wierzchołek
     def __init__(self, key): # konstruktor pozwalający stworzyc nowy obiekt klasy
@@ -57,7 +29,6 @@ class Node: #klasa tworząca nowy typ danych - wierzchołek
         if self.right:
             self.right.print_preorder()
 
-    @timer_decorator
     def find_min_max(self): #zwraca wartosc wierzcholkow
         min_val = self.val
         max_val = self.val
@@ -85,7 +56,7 @@ class Node: #klasa tworząca nowy typ danych - wierzchołek
             current = current.left
 
         return current
-   
+    
     
     def remove(self, key):
         if self is None:
@@ -136,178 +107,6 @@ class Node: #klasa tworząca nowy typ danych - wierzchołek
                 tex_file.write(" } ")
             else:
                 tex_file.write("    child [missing] ")
-
-
-
-class AVLNode:
-    def __init__(self, key):
-        self.val = key
-        self.left = None
-        self.right = None
-        self.height = 1
-
-    def update_height(self):
-        left_height = self.left.height if self.left else 0
-        right_height = self.right.height if self.right else 0
-        self.height = max(left_height, right_height) + 1
-
-    def get_balance(self):
-        left_height = self.left.height if self.left else 0
-        right_height = self.right.height if self.right else 0
-        return left_height - right_height
-
-    def get_tree_size(self):
-        # Poprawiona wersja liczenia rozmiaru drzewa
-        if self is None:
-            return 0
-        left_size = self.left.get_tree_size() if self.left else 0
-        right_size = self.right.get_tree_size() if self.right else 0
-        return 1 + left_size + right_size
-    
-    def balance_tree_dsw(self):
-        # Tworzenie drzewa w kształcie listwy
-        head = self.create_vined_tree(self)
-        
-        # Obliczenie rozmiaru drzewa
-        size = head.get_tree_size()
-        
-        # Równoważenie drzewa
-        root = self.rebalance_vined_tree(head, size)
-        return root
-    # Operacje rotacji
-    def rotate_right(self):
-        new_root = self.left
-        self.left = new_root.right
-        new_root.right = self
-        self.update_height()
-        new_root.update_height()
-        return new_root
-
-    def rotate_left(self):
-        new_root = self.right
-        self.right = new_root.left
-        new_root.left = self
-        self.update_height()
-        new_root.update_height()
-        return new_root
-
-    # Rotacje lewo-prawo i prawo-lewo
-    def rotate_left_right(self):
-        self.left = self.left.rotate_left()
-        return self.rotate_right()
-
-    def rotate_right_left(self):
-        self.right = self.right.rotate_right()
-        return self.rotate_left()
-
-    # Operacja wstawiania z zachowaniem równowagi AVL
-    def insert(self, key):
-        if key < self.val:
-            if self.left:
-                self.left = self.left.insert(key)
-            else:
-                self.left = AVLNode(key)
-        else:
-            if self.right:
-                self.right = self.right.insert(key)
-            else:
-                self.right = AVLNode(key)
-
-        self.update_height()
-        return self.balance()
-
-    # Przywracanie równowagi
-    def balance(self):
-        balance = self.get_balance()
-
-        if balance > 1:
-            if self.left and self.left.get_balance() < 0:
-                return self.rotate_left_right()
-            else:
-                return self.rotate_right()
-
-        if balance < -1:
-            if self.right and self.right.get_balance() > 0:
-                return self.rotate_right_left()
-            else:
-                return self.rotate_left()
-
-        return self
-
-    # Metody do drukowania węzłów w różnych porządkach
-    def print_inorder(self):
-        if self.left:
-            self.left.print_inorder()
-        print(self.val, end=' ')
-        if self.right:
-            self.right.print_inorder()
-
-    def print_postorder(self):
-        if self.left:
-            self.left.print_postorder()
-        if self.right:
-            self.right.print_postorder()
-        print(self.val, end=' ')
-
-    def print_preorder(self):
-        print(self.val, end=' ')
-        if self.left:
-            self.left.print_preorder()
-        if self.right:
-            self.right.print_preorder()
-
-    # Metody do eksportu do TikZ
-    def export_to_tikz(self, tex_file):
-        tex_file.write(f"node {{{self.val}}}")
-        if self.left or self.right:
-            tex_file.write("{ ")
-            if self.left:
-                self.left.export_to_tikz(tex_file)
-            else:
-                tex_file.write("child[missing] ")
-            if self.right:
-                self.right.export_to_tikz(tex_file)
-            else:
-                tex_file.write("child[missing] ")
-            tex_file.write("}")
-
-    # Metoda do znajdowania najmniejszego elementu w drzewie
-    def minValueNode(self):
-        current = self
-        while current.left is not None:
-            current = current.left
-        return current
-
-    # Usuwanie elementów
-    def remove(self, key):
-        if key < self.val:
-            if self.left:
-                self.left = self.left.remove(key)
-        elif key > self.val:
-            if self.right:
-                self.right = self.right.remove(key)
-        else:
-            if self.left is None:
-                return self.right
-            elif self.right is None:
-                return self.left
-
-            min_right = self.right.minValueNode()
-            self.val = min_right.val
-            self.right = self.right.remove(min_right.val)
-        
-        self.update_height()
-        return self.balance()
-
-    # Operacja do usuwania całego drzewa
-    def delete_all_postorder(self):
-        if self.left:
-            self.left = self.left.delete_all_postorder()
-        if self.right:
-            self.right = self.right.delete_all_postorder()
-        return None
-    
-        
         
 def help():
     print("Help         -   Show this message")
@@ -316,10 +115,9 @@ def help():
     print("Remove       -   Remove elements of the tree")
     print("RemoveAll    -   Delete whole tree")
     print("Export       -   Export the tree to tikzpicture")
-    print("Rebalance    -   Rebalance the tree - only AVL")
-    print("Exit         -   Exits the program (same as ctrl+D)")
+    print("Rebalance    -   Rebalance the tree - only")
+    print("Exit Exits the program (same as ctrl+D)")
 
-# @timer_decorator
 def insert(root, key): #funkcja czytajaca wierzcholek BST i ustawiająca go w odpowiednim miejscu w zaleznosci od jego wartosci
     if root is None:
         return Node(key)
@@ -330,76 +128,54 @@ def insert(root, key): #funkcja czytajaca wierzcholek BST i ustawiająca go w od
             root.left = insert(root.left, key)
     return root
 
+def bstToVine(grand: Node) -> int:
+    count = 0
+    tmp = grand.right
+    while tmp:
+ 
+        if tmp.left:
+            oldTmp = tmp
+            tmp = tmp.left
+            oldTmp.left = tmp.right
+            tmp.right = oldTmp
+            grand.right = tmp
 
+        else:
+            count += 1
+            grand = tmp
+            tmp = tmp.right
+ 
+    return count
+ 
+def compress(grand: Node, m: int) -> None:
+    tmp = grand.right
+    for i in range(m):
+        oldTmp = tmp
+        tmp = tmp.right
+        grand.right = tmp
+        oldTmp.right = tmp.left
+        tmp.left = oldTmp
+        grand = tmp
+        tmp = tmp.right
+ 
+def balanceBST(root: Node) -> Node:
+ 
+    grand = Node(0)
+    grand.right = root
+    count = bstToVine(grand)
+    h = int(math.log2(count + 1))
+    m = pow(2, h) - 1
+    compress(grand, count - m)
+    for m in [m // 2**i for i in range(1, h + 1)]:
+        compress(grand, m)
 
-
+    return grand.right
 
 
 def main():
     parser = argparse.ArgumentParser() #odpalenie programu przy pomocy komendy
     parser.add_argument("--tree", type=str, help="Type of the tree")
     args = parser.parse_args() #
-
-    def create_vined_tree(root):
-    # Funkcja tworząca drzewo ułożone w linię ("vine") z danego korzenia
-        if root is None:
-            return None
-
-        dummy = AVLNode(0)  # Fikcyjny węzeł początkowy
-        tail = dummy  # Początkowo jest to koniec listwy
-        current = root
-        
-        while current:
-            if current.left:
-                # Przesunięcie w lewo
-                tmp = current.left
-                current.left = tmp.right
-                tmp.right = current
-                current = tmp
-            else:
-                # Dołączenie do listwy
-                tail.right = current
-                tail = current
-                current = current.right
-        
-        return dummy.right  # Zwróć wynikowe "vine"
-
-
-    def rebalance_vined_tree(head, size):
-        if not head:
-            return None
-        
-        # Liczba pełnych rotacji do zbalansowania
-        full_rotations = size // 2
-
-        # Pierwsza seria rotacji w lewo
-        current = head
-        parent = None
-        for _ in range(full_rotations):
-            if current and current.right:
-                next_node = current.right
-                current.right = next_node.right
-                next_node.right = current
-                current = next_node
-            else:
-                break  # Uniknięcie błędów
-        
-        # Druga seria rotacji z mniejszą liczbą rotacji
-        m = full_rotations // 2
-        while m > 0:
-            current = head
-            for _ in range(m):
-                if current and current.right:
-                    next_node = current.right
-                    current.right = next_node.right
-                    next_node.right = current
-                    current = next_node
-                else:
-                    break
-            m = m // 2
-        
-        return head
-
 
     if args.tree == "BST":
         print("nodes> ", end="")
@@ -428,9 +204,6 @@ def main():
                         print("Maximum value in the BST is: ", max_val)
                     else:
                         print("Drzewo jest puste")
-
-                elif action == "PrintTotalTime":
-                    print_total_time(root, 'find_min_max')
 
                 elif action == "Print":
                     if root is not None:
@@ -478,6 +251,15 @@ def main():
                         print("Export to file tree.tex succeeded")
                     else:
                         print("The tree is empty")
+
+                elif action == "Rebalance":
+                    if root is not None:
+                        root = balanceBST(root)
+                        print("Preorder: ", end="")
+                        root.print_preorder()
+                        print()
+                    else:
+                        print("The tree is empty")
                 
                 elif action == "Exit":
                     break
@@ -485,85 +267,15 @@ def main():
         else:
             print("Ilość podanych wierzchołków nie jest równa n")
 
-        
-        
-
-    elif args.tree == "AVL":
+    if args.tree == "AVL":
         print("nodes> ", end="")
         n = int(input())
         print("insert> ", end="")
         nums = list(map(int, input().split()))
-        nums.sort()
-        def construct_avl_from_sorted_list(nums):
-            if not nums:
-                return None
-            mid = len(nums) // 2
-            node = AVLNode(nums[mid])
-            node.left = construct_avl_from_sorted_list(nums[:mid])
-            node.right = construct_avl_from_sorted_list(nums[mid + 1:])
-            node.update_height()  # Aktualizuj wysokość po każdej operacji
-            return node
-        
         if len(nums) == n:
-            print("Sorted:", ",".join(map(str, nums)))
-            print("Median:",sorted(nums)[len(sorted(nums))//2])
-            root = construct_avl_from_sorted_list(nums)
-            while True:
-                print("action> ", end="")
-                action = input().strip().lower()
-                
-                if action == "print":
-                    print("In-order:", end=" ")
-                    root.print_inorder()
-                    print("\nPost-order:", end=" ")
-                    root.print_postorder()
-                    print("\nPre-order:", end=" ")
-                    root.print_preorder()
-                    print()
-
-                elif action == "help":
-                    help()
-                
-                elif action == "findMinMax":
-                    min_node = root.minValueNode()
-                    current = root
-                    while current.right:
-                        current = current.right
-                    max_node = current
-                    print(f"Min: {min_node.val}\nMax: {max_node.val}")
-
-                elif action == "export":
-                    with open("tree.tikz", "w") as tex_file:
-                        tex_file.write("\\begin{tikzpicture}[sibling distance=3cm, level distance=1.5cm]\n")
-                        tex_file.write("\\node {")
-                        root.export_to_tikz(tex_file)
-                        tex_file.write("};\n")
-                        tex_file.write("\\end{tikzpicture}\n")
-                    print("Tree exported to tree.tikz")
-
-                elif action == "remove":
-                    print("remove> ", end="")
-                    to_remove = list(map(int, input().split()))
-                    for val in to_remove:
-                        root = root.remove(val)
-                    print("Elements removed")
-
-                elif action == "removeall":
-                    root = None
-                    print("Tree deleted")
-                
-                elif action == "rebalance":
-                    if root is not None:
-                        size = root.get_tree_size()  # Uzyskanie rozmiaru drzewa
-                        root = rebalance_vined_tree(create_vined_tree(root), root.get_tree_size())
-                        print("Tree rebalanced")
-                    else:
-                        print("Cannot rebalance: tree is empty.")
-
-                elif action == "exit":
-                    break
+            print("TODO")
         else:
             print("Ilość podanych wierzchołków nie jest równa n")
-    
+
 if __name__ == "__main__":
     main()
