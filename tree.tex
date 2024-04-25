@@ -2,7 +2,7 @@
 \usepackage{tikz}
 \begin{document}
 \begin{tikzpicture}
-[->,>=stealth',level/.style={sibling distance = 7cm/#1, level distance = 1.5cm}]
+[->,>=stealth,level/.style={sibling distance = 7cm/#1, level distance = 1.5cm}]
 \node {20}
     child { node {5}
     child { node {1} }     child { node {10} }  }     child { node {35} } ;

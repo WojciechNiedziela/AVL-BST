@@ -474,7 +474,7 @@ def main():
                             tex_file.write("\\usepackage{tikz}\n")
                             tex_file.write("\\begin{document}\n")
                             tex_file.write("\\begin{tikzpicture}\n")
-                            tex_file.write("[->,>=stealth',level/.style={sibling distance = 7cm/#1, level distance = 1.5cm}]\n")
+                            tex_file.write("[->,>=stealth,level/.style={sibling distance = 7cm/#1, level distance = 1.5cm}]\n")
                             tex_file.write("\\")
                             root.export(tex_file)
                             tex_file.write(";\n")

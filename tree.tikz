@@ -1,0 +1,3 @@
+\begin{tikzpicture}[sibling distance=3cm, level distance=1.5cm]
+\node {node {6}{ node {3}{ node {2}node {4}}node {9}{ node {7}child[missing] }}};
+\end{tikzpicture}
