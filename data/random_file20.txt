@@ -1,0 +1,5 @@
+20
+84 56 14 54 20 31 94 89 88 2 77 57 97 72 52 37 56 13 65 69
+Rebalance
+PrintTotalTime
+Exit

@@ -115,7 +115,7 @@ def help():
     print("Remove       -   Remove elements of the tree")
     print("RemoveAll    -   Delete whole tree")
     print("Export       -   Export the tree to tikzpicture")
-    print("Rebalance    -   Rebalance the tree - only AVL")
+    print("Rebalance    -   Rebalance the tree - only")
     print("Exit Exits the program (same as ctrl+D)")
 
 def insert(root, key): #funkcja czytajaca wierzcholek BST i ustawiająca go w odpowiednim miejscu w zaleznosci od jego wartosci
@@ -204,9 +204,6 @@ def main():
                         print("Maximum value in the BST is: ", max_val)
                     else:
                         print("Drzewo jest puste")
-
-                elif action == "PrintTotalTime":
-                    print_total_time(root, 'insert')
 
                 elif action == "Print":
                     if root is not None:
