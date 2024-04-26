@@ -291,7 +291,7 @@ def help():
     print("RemoveAll    -   Delete whole tree")
     print("Export       -   Export the tree to tikzpicture")
     print("Rebalance    -   Rebalance the tree")
-    print("Exit Exits the program (same as ctrl+D)")
+    print("Exit         -   Exits the program (same as ctrl+D)")
 
 def insert(root, key): #funkcja czytajaca wierzcholek BST i ustawiająca go w odpowiednim miejscu w zaleznosci od jego wartosci
     if root is None:
@@ -346,73 +346,69 @@ def balanceBST(root: Node) -> Node:
 
     return grand.right
 
-
-def main():
-    parser = argparse.ArgumentParser() #odpalenie programu przy pomocy komendy
-    parser.add_argument("--tree", type=str, help="Type of the tree")
-    args = parser.parse_args() #
-
-
-    def create_vined_tree(root):
-    # Funkcja tworząca drzewo ułożone w linię ("vine") z danego korzenia
-        if root is None:
-            return None
-
-        dummy = AVLNode(0)  # Fikcyjny węzeł początkowy
-        tail = dummy  # Początkowo jest to koniec listwy
-        current = root
+def create_vined_tree(root):
+            # Funkcja tworząca drzewo ułożone w linię ("vine") z danego korzenia
+    if root is None:
+        return None
+    dummy = AVLNode(0)  # Fikcyjny węzeł początkowy
+    tail = dummy  # Początkowo jest to koniec listwy
+    current = root
         
-        while current:
-            if current.left:
-                # Przesunięcie w lewo
-                tmp = current.left
-                current.left = tmp.right
-                tmp.right = current
-                current = tmp
-            else:
-                # Dołączenie do listwy
-                tail.right = current
-                tail = current
-                current = current.right
+    while current:
+        if current.left:
+            # Przesunięcie w lewo
+            tmp = current.left
+            current.left = tmp.right
+            tmp.right = current
+            current = tmp
+        else:
+                            # Dołączenie do listwy
+            tail.right = current
+            tail = current
+            current = current.right
         
-        return dummy.right  # Zwróć wynikowe "vine"
+    return dummy.right  # Zwróć wynikowe "vine"
 
 
-    def rebalance_vined_tree(head, size):
-        if not head:
-            return None
+def rebalance_vined_tree(head, size):
+    if not head:
+        return None
         
         # Liczba pełnych rotacji do zbalansowania
-        full_rotations = size // 2
+    full_rotations = size // 2
 
         # Pierwsza seria rotacji w lewo
+    current = head
+    parent = None
+    for _ in range(full_rotations):
+        if current and current.right:
+            next_node = current.right
+            current.right = next_node.right
+            next_node.right = current
+            current = next_node
+        else:
+            break  # Uniknięcie błędów
+        
+        # Druga seria rotacji z mniejszą liczbą rotacji
+    m = full_rotations // 2
+    while m > 0:
         current = head
-        parent = None
-        for _ in range(full_rotations):
+        for _ in range(m):
             if current and current.right:
                 next_node = current.right
                 current.right = next_node.right
                 next_node.right = current
                 current = next_node
             else:
-                break  # Uniknięcie błędów
+                break
+        m = m // 2
         
-        # Druga seria rotacji z mniejszą liczbą rotacji
-        m = full_rotations // 2
-        while m > 0:
-            current = head
-            for _ in range(m):
-                if current and current.right:
-                    next_node = current.right
-                    current.right = next_node.right
-                    next_node.right = current
-                    current = next_node
-                else:
-                    break
-            m = m // 2
-        
-        return head
+    return head
     
+def main():
+    parser = argparse.ArgumentParser() #odpalenie programu przy pomocy komendy
+    parser.add_argument("--tree", type=str, help="Type of the tree")
+    args = parser.parse_args() #
 
     if args.tree == "BST":
         print("nodes> ", end="")
