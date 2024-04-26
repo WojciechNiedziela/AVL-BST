@@ -389,32 +389,6 @@ def balanceBST(root: Node) -> Node:
 
     return grand.right
 
-#AVL 
-def create_vined_tree(root):
-            # Funkcja tworząca drzewo ułożone w linię ("vine") z danego korzenia
-    if root is None:
-        return None
-    dummy = AVLNode(0)  # Fikcyjny węzeł początkowy
-    tail = dummy  # Początkowo jest to koniec listwy
-    current = root
-        
-    while current:
-        if current.left:
-            # Przesunięcie w lewo
-            tmp = current.left
-            current.left = tmp.right
-            tmp.right = current
-            current = tmp
-        else:
-                            # Dołączenie do listwy
-            tail.right = current
-            tail = current
-            current = current.right
-        
-    return dummy.right  # Zwróć wynikowe "vine"
-
-#AVL
-def rebalance_vined_tree(head, size):
     if not head:
         return None
         
