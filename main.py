@@ -144,7 +144,7 @@ class AVLNode:
         # Równoważenie drzewa
         root = self.rebalance_vined_tree(head, size)
         return root
-    # Operacje rotacji
+    # Operacje rotacji]
     def rotate_right(self):
         new_root = self.left
         self.left = new_root.right
@@ -389,6 +389,7 @@ def balanceBST(root: Node) -> Node:
 
     return grand.right
 
+#AVL 
 def create_vined_tree(root):
             # Funkcja tworząca drzewo ułożone w linię ("vine") z danego korzenia
     if root is None:
@@ -412,7 +413,7 @@ def create_vined_tree(root):
         
     return dummy.right  # Zwróć wynikowe "vine"
 
-
+#AVL
 def rebalance_vined_tree(head, size):
     if not head:
         return None

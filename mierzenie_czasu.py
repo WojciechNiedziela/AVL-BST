@@ -81,14 +81,6 @@ class Node: #klasa tworząca nowy typ danych - wierzchołek
         if self.right:
             self.right.print_inorder()
 
-    def print_postorder(self):
-        if self.left:
-            self.left.print_postorder()
-        if self.right:
-            self.right.print_postorder()
-        print(self.val, end=' ')
-
-    def print_preorder(self):
         print(self.val, end=' ')
         if self.left:
             self.left.print_preorder()
@@ -242,9 +234,6 @@ def balanceBST(root: Node) -> Node:
     return grand.right
 
 
-
-
-
 class AVLNode:
     def __init__(self, key):
         self.val = key
@@ -348,20 +337,6 @@ class AVLNode:
         print(self.val, end=' ')
         if self.right:
             self.right.print_inorder()
-
-    def print_postorder(self):
-        if self.left:
-            self.left.print_postorder()
-        if self.right:
-            self.right.print_postorder()
-        print(self.val, end=' ')
-
-    def print_preorder(self):
-        print(self.val, end=' ')
-        if self.left:
-            self.left.print_preorder()
-        if self.right:
-            self.right.print_preorder()
 
     # Metody do eksportu do TikZ
     def export(self, tex_file):
