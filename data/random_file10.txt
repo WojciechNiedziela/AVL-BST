@@ -1,5 +1,5 @@
 10
-36 78 50 78 62 99 77 84 59 43
-Rebalance
+75 41 30 62 92 74 9 54 85 23
+print
 PrintTotalTime
 Exit

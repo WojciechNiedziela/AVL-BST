@@ -1,6 +1,6 @@
 # uruchomienie programu: python program.py --tree BST / AVL
 
-import argparse, time, math
+import argparse, math
 
 class Node: #klasa tworząca nowy typ danych - wierzchołek
     def __init__(self, key): # konstruktor pozwalający stworzyc nowy obiekt klasy

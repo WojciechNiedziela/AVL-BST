@@ -3,7 +3,7 @@
 import os
 import random
 
-NAZWA_TESTOWANEJ_FUNKCJI = 'Rebalance' # -> TUTAJ PODAJ FUNKCJE KTORA CHCESZ TESTOWAC
+NAZWA_TESTOWANEJ_FUNKCJI = 'print' # -> TUTAJ PODAJ FUNKCJE KTORA CHCESZ TESTOWAC
 
 def create_random_files(start, end, step):
     for num_nodes in range(start, end+1, step):

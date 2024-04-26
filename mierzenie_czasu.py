@@ -10,13 +10,20 @@
 # (e) równoważenia drzewa BST.
 
 #DO_ZMIERZENIA  - Nazwa funkcji w benchmark
-# ?AVL
+# AVL
+# construct_avl_from_sorted_list    - anything // DODAC CZAS SORTOWANIA
+#
+# min max                           - FindMinMax // funkcja troche zle napisana, 
+                                        # bo nie robi min max razem
+# print_inorder                     - print
+
+# BST:
 # insert        - anything
 # find_min_max  - FindMinMax
 # print_inorder - Print
-# ?balanceBST   - Rebalance
+# balanceBST   - Rebalance
 
-DO_ZMIERZENIA = 'balanceBST'
+DO_ZMIERZENIA = 'print_inorder'
 
 
 
@@ -241,6 +248,185 @@ def balanceBST(root: Node) -> Node:
 
 
 
+
+
+class AVLNode:
+    def __init__(self, key):
+        self.val = key
+        self.left = None
+        self.right = None
+        self.height = 1
+
+    def update_height(self):
+        left_height = self.left.height if self.left else 0
+        right_height = self.right.height if self.right else 0
+        self.height = max(left_height, right_height) + 1
+
+    def get_balance(self):
+        left_height = self.left.height if self.left else 0
+        right_height = self.right.height if self.right else 0
+        return left_height - right_height
+
+    def get_tree_size(self):
+        # Poprawiona wersja liczenia rozmiaru drzewa
+        if self is None:
+            return 0
+        left_size = self.left.get_tree_size() if self.left else 0
+        right_size = self.right.get_tree_size() if self.right else 0
+        return 1 + left_size + right_size
+    
+    def balance_tree_dsw(self):
+        # Tworzenie drzewa w kształcie listwy
+        head = self.create_vined_tree(self)
+        
+        # Obliczenie rozmiaru drzewa
+        size = head.get_tree_size()
+        
+        # Równoważenie drzewa
+        root = self.rebalance_vined_tree(head, size)
+        return root
+    # Operacje rotacji
+    def rotate_right(self):
+        new_root = self.left
+        self.left = new_root.right
+        new_root.right = self
+        self.update_height()
+        new_root.update_height()
+        return new_root
+
+    def rotate_left(self):
+        new_root = self.right
+        self.right = new_root.left
+        new_root.left = self
+        self.update_height()
+        new_root.update_height()
+        return new_root
+
+    # Rotacje lewo-prawo i prawo-lewo
+    def rotate_left_right(self):
+        self.left = self.left.rotate_left()
+        return self.rotate_right()
+
+    def rotate_right_left(self):
+        self.right = self.right.rotate_right()
+        return self.rotate_left()
+
+    # Operacja wstawiania z zachowaniem równowagi AVL
+    def insert(self, key):
+        if key < self.val:
+            if self.left:
+                self.left = self.left.insert(key)
+            else:
+                self.left = AVLNode(key)
+        else:
+            if self.right:
+                self.right = self.right.insert(key)
+            else:
+                self.right = AVLNode(key)
+
+        self.update_height()
+        return self.balance()
+
+    # Przywracanie równowagi
+    def balance(self):
+        balance = self.get_balance()
+
+        if balance > 1:
+            if self.left and self.left.get_balance() < 0:
+                return self.rotate_left_right()
+            else:
+                return self.rotate_right()
+
+        if balance < -1:
+            if self.right and self.right.get_balance() > 0:
+                return self.rotate_right_left()
+            else:
+                return self.rotate_left()
+
+        return self
+
+    # Metody do drukowania węzłów w różnych porządkach
+    @timer_decorator
+    def print_inorder(self):
+        if self.left:
+            self.left.print_inorder()
+        print(self.val, end=' ')
+        if self.right:
+            self.right.print_inorder()
+
+    def print_postorder(self):
+        if self.left:
+            self.left.print_postorder()
+        if self.right:
+            self.right.print_postorder()
+        print(self.val, end=' ')
+
+    def print_preorder(self):
+        print(self.val, end=' ')
+        if self.left:
+            self.left.print_preorder()
+        if self.right:
+            self.right.print_preorder()
+
+    # Metody do eksportu do TikZ
+    def export(self, tex_file):
+        if not self.left and not self.right:
+            tex_file.write(f"node {{{self.val}}}")
+        else:
+            tex_file.write(f"node {{{self.val}}}\n")
+            if self.left:
+                tex_file.write("    child { ")
+                self.left.export(tex_file)
+                tex_file.write(" } ")
+            else:
+                tex_file.write("    child[missing] ")
+        
+            if self.right:
+                tex_file.write("    child { ")
+                self.right.export(tex_file)
+                tex_file.write(" } ")
+            else:
+                tex_file.write("    child [missing] ")
+
+    # Metoda do znajdowania najmniejszego elementu w drzewie
+    def minValueNode(self):
+        current = self
+        while current.left is not None:
+            current = current.left
+        return current
+
+    # Usuwanie elementów
+    def remove(self, key):
+        if key < self.val:
+            if self.left:
+                self.left = self.left.remove(key)
+        elif key > self.val:
+            if self.right:
+                self.right = self.right.remove(key)
+        else:
+            if self.left is None:
+                return self.right
+            elif self.right is None:
+                return self.left
+
+            min_right = self.right.minValueNode()
+            self.val = min_right.val
+            self.right = self.right.remove(min_right.val)
+        
+        self.update_height()
+        return self.balance()
+
+    # Operacja do usuwania całego drzewa
+    def delete_all_postorder(self):
+        if self.left:
+            self.left = self.left.delete_all_postorder()
+        if self.right:
+            self.right = self.right.delete_all_postorder()
+        return None
+
+
+
+
 FUNCTIONS = {
     'insert': insert,
     'balanceBST': balanceBST,
@@ -289,10 +475,6 @@ def main():
                             if root is not None:
                                 print("Inorder: ", end="")
                                 root.print_inorder()
-                                # print("\nPostorder: ", end="")
-                                # root.print_postorder()
-                                # print("\nPreorder: ", end="")
-                                # root.print_preorder()
                                 print()
                             else:
                                 print("Drzewo jest puste")
@@ -338,12 +520,133 @@ def main():
                                 print("The tree is empty")
 
                         elif action == "PrintTotalTime":
-                            # print_total_time(root, DO_ZMIERZENIA)
-                            print_total_time_not_in_class(FUNCTIONS[DO_ZMIERZENIA])
+
+                            # print_total_time(root, DO_ZMIERZENIA) # -> w przypadku klasy
+                            print_total_time_not_in_class(FUNCTIONS[DO_ZMIERZENIA]) # -> w przypadku funkcji
                 else:
                     print("Ilość podanych wierzchołków nie jest równa n")
+
+    elif args.tree == "AVL_test":
+        data_folder = 'data'
+        for filename in os.listdir(data_folder):
+            file_path = os.path.join(data_folder, filename)
+            with open(file_path, 'r') as file:
+                # Wczytaj dane z pliku
+                lines = file.readlines()
+                n = int(lines[0].strip())  # liczba węzłów
+                nums = list(map(int, lines[1].split()))  # węzły
+                action1 = lines[2].strip()  # nazwa funkcji 1
+                action2 = lines[3].strip()  # nazwa funkcji 2
+                action3 = lines[4].strip()  # nazwa funkcji 3
+
+                nums.sort()
+
+    #######################################################################
+                @timer_decorator
+                def construct_avl_from_sorted_list(nums):
+                    if not nums:
+                        return None
+                    mid = len(nums) // 2
+                    node = AVLNode(nums[mid])
+                    node.left = construct_avl_from_sorted_list(nums[:mid])
+                    node.right = construct_avl_from_sorted_list(nums[mid + 1:])
+                    node.update_height()  # Aktualizuj wysokość po każdej operacji
+                    return node
+        
+    #######################################################################
+
+
+
+                FUNCTIONS_AVL = {
+                    'construct_avl_from_sorted_list': construct_avl_from_sorted_list,
+                }
+
+
+                if len(nums) == n:
+                    print("Sorted:", ",".join(map(str, nums)))
+                    print("Median:",sorted(nums)[len(sorted(nums))//2])
+                    root = construct_avl_from_sorted_list(nums)
+                    # while True:
+                
+                        # Wywołaj funkcje określone w pliku
+                    actions = [action1, action2, action3]
+                    for action in actions:
+                
+                            if action == "print":
+                                if root is not None:
+                                    print("In-order:", end=" ")
+                                    root.print_inorder()
+                                    print()
+                                else:
+                                    print("Drzewo jest puste")
+
+                            elif action == "help":
+                                help()
+                
+                            elif action == "findMinMax":
+                                if root is not None:
+                                    min_node = root.minValueNode()
+                                    current = root
+                                    while current.right:
+                                        current = current.right
+                                    max_node = current
+                                    print(f"Min: {min_node.val}\nMax: {max_node.val}")
+                                else:
+                                    print("Drzewo jest puste")
+
+                            elif action == "export":
+                                if root is not None:
+                                    with open("tree.tex", "w") as tex_file:
+                                        tex_file.write("\\documentclass{standalone}\n")
+                                        tex_file.write("\\usepackage{tikz}\n")
+                                        tex_file.write("\\begin{document}\n")
+                                        tex_file.write("\\begin{tikzpicture}\n")
+                                        tex_file.write("    [->,>=stealth,level/.style={sibling distance = 7cm/#1, level distance = 1.5cm}]\n")
+                                        tex_file.write("    \\")
+                                        root.export(tex_file)
+                                        tex_file.write(";\n")
+                                        tex_file.write("\\end{tikzpicture}\n")
+                                        tex_file.write("\\end{document}\n")
+                                    print("Export to file tree.tex succeeded")
+                                else:
+                                    print("The tree is empty")
+
+                            elif action == "remove":
+                                if root is not None:
+                                    print("remove> ", end="")
+                                    to_remove = list(map(int, input().split()))
+                                    for val in to_remove:
+                                        root = root.remove(val)
+                                    print("Elements removed")
+                                else:
+                                    print("Cannot remove: tree is empty.")
+
+                            elif action == "removeall":
+                                if root is not None:
+                                    root.delete_all_postorder()
+                                    root = None
+                                    print("Tree deleted")
+                                else:
+                                    print("Cannot delete: tree is empty.")
+                
+                            elif action == "rebalance":
+                                if root is not None:
+                                    size = root.get_tree_size()  # Uzyskanie rozmiaru drzewa
+                                    root = rebalance_vined_tree(create_vined_tree(root), root.get_tree_size())
+                                    print("Tree rebalanced")
+                                else:
+                                    print("Cannot rebalance: tree is empty.")
+
+                            elif action == "exit":
+                                break
+
+                            elif action == "PrintTotalTime":
+
+                                print_total_time(root, DO_ZMIERZENIA) # -> w przypadku klasy
+                                # print_total_time_not_in_class(FUNCTIONS_AVL[DO_ZMIERZENIA]) # -> w przypadku funkcji
+
     else:
-        print("Invalid tree type. Please use --tree BST_test")
+        print("Invalid tree type. Please use --tree BST_test or --tree AVL_test.")
 
 if __name__ == "__main__":
     main()
