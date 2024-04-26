@@ -365,7 +365,7 @@ def bstToVine(grand: Node) -> int:
  
     return count
  
-def compress(grand: Node, m: int) -> None:
+def compress(grand: Node, m: int) -> None: #funkcja kompresująca drzewo -> to vine
     tmp = grand.right
     for i in range(m):
         oldTmp = tmp
@@ -470,11 +470,11 @@ def main():
 
             while True:
                 print("action> ", end="")
-                action = input().strip()
-                if action == "Help":
+                action = input().strip().lower()
+                if action == "help":
                     help()
 
-                elif action == "FindMinMax":
+                elif action == "findminmax":
                     if root is not None:
                         min_val, max_val = root.find_min_max()
                         print("Minimum value in the BST is: ", min_val)
@@ -482,7 +482,7 @@ def main():
                     else:
                         print("Drzewo jest puste")
 
-                elif action == "Print":
+                elif action == "print":
                     if root is not None:
                         print("Inorder: ", end="")
                         root.print_inorder()
@@ -494,7 +494,7 @@ def main():
                     else:
                         print("Drzewo jest puste")
 
-                elif action == "Remove":
+                elif action == "remove":
                     key = int(input("Enter the key to remove: "))
                     if root is not None and root.search(key) is not None:
                         root = root.remove(key)
@@ -505,14 +505,14 @@ def main():
                     else:
                         print("Node with key", key, "does not exist in the tree.")
 
-                elif action == "RemoveAll":
+                elif action == "removeall":
                     if root is not None:
                         root = root.remove_all_post_order()
                         print("\n All nodes have been removed from the tree.")
                     else:
                         print("Drzewo jest puste")
 
-                elif action == "Export":
+                elif action == "export":
                     if root is not None:
                         with open("tree.tex", "w") as tex_file:
                             tex_file.write("\\documentclass{standalone}\n")
@@ -529,7 +529,7 @@ def main():
                     else:
                         print("The tree is empty")
 
-                elif action == "Rebalance":
+                elif action == "rebalance":
                     if root is not None:
                         root = balanceBST(root)
                         print("Preorder: ", end="")
@@ -538,7 +538,7 @@ def main():
                     else:
                         print("The tree is empty")
                 
-                elif action == "Exit":
+                elif action == "exit":
                     break
 
         else:
