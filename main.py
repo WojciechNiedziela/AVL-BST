@@ -389,6 +389,7 @@ def balanceBST(root: Node) -> Node:
 
     return grand.right
 
+<<<<<<< HEAD
     if not head:
         return None
         
@@ -423,6 +424,8 @@ def balanceBST(root: Node) -> Node:
         
     return head
     
+=======
+>>>>>>> 8f1a51c (Final)
 def main():
     parser = argparse.ArgumentParser() #odpalenie programu przy pomocy komendy
     parser.add_argument("--tree", type=str, help="Type of the tree")
@@ -552,7 +555,7 @@ def main():
                         root.print_preorder()
                         print()
                     else:
-                        print("Drzewo jest puste")
+                        print("Cannot print: tree is empty.")
 
                 elif action == "help":
                     help()
@@ -566,7 +569,7 @@ def main():
                         max_node = current
                         print(f"Min: {min_node.val}\nMax: {max_node.val}")
                     else:
-                        print("Drzewo jest puste")
+                        print("Cannot find: tree is empty.")
 
                 elif action == "export":
                     if root is not None:
@@ -583,7 +586,7 @@ def main():
                             tex_file.write("\\end{document}\n")
                         print("Export to file tree.tex succeeded")
                     else:
-                        print("The tree is empty")
+                        print("Cannot export: tree is empty.")
 
                 elif action == "remove":
                     if root is not None:
@@ -608,7 +611,7 @@ def main():
                         root = balanceAVL(root)
                         print("Tree rebalanced!")
                     else:
-                        print("The tree is empty")
+                        print("Cannot rebalance: tree is empty")
                 
                 elif action == "Exit":
                     break
