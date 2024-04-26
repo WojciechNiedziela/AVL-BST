@@ -21,11 +21,6 @@
 # insert        - anything
 # find_min_max  - FindMinMax
 # print_inorder - Print
-# balanceBST   - Rebalance
-
-DO_ZMIERZENIA = 'print_inorder'
-
-
 
 import argparse, time, math, os, subprocess
 
