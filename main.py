@@ -1,6 +1,6 @@
 # uruchomienie programu: python program.py --tree BST / AVL
 
-import argparse, math
+import argparse, time, math
 
 class Node: #klasa tworząca nowy typ danych - wierzchołek
     def __init__(self, key): # konstruktor pozwalający stworzyc nowy obiekt klasy
@@ -303,6 +303,49 @@ def insert(root, key): #funkcja czytajaca wierzcholek BST i ustawiająca go w od
             root.left = insert(root.left, key)
     return root
 
+def AVLToVine(grand: Node) -> int:
+    count = 0
+    tmp = grand.right
+    while tmp:
+ 
+        if tmp.left:
+            oldTmp = tmp
+            tmp = tmp.left
+            oldTmp.left = tmp.right
+            tmp.right = oldTmp
+            grand.right = tmp
+
+        else:
+            count += 1
+            grand = tmp
+            tmp = tmp.right
+ 
+    return count
+ 
+def AVLcompress(grand: AVLNode, m: int) -> None:
+    tmp = grand.right
+    for i in range(m):
+        oldTmp = tmp
+        tmp = tmp.right
+        grand.right = tmp
+        oldTmp.right = tmp.left
+        tmp.left = oldTmp
+        grand = tmp
+        tmp = tmp.right
+ 
+def balanceAVL(root: AVLNode) -> Node:
+ 
+    grand = AVLNode(0)
+    grand.right = root
+    count = AVLToVine(grand)
+    h = int(math.log2(count + 1))
+    m = pow(2, h) - 1
+    AVLcompress(grand, count - m)
+    for m in [m // 2**i for i in range(1, h + 1)]:
+        AVLcompress(grand, m)
+
+    return grand.right
+
 def bstToVine(grand: Node) -> int:
     count = 0
     tmp = grand.right
@@ -584,14 +627,16 @@ def main():
                         print("Tree deleted")
                     else:
                         print("Cannot delete: tree is empty.")
-                
+
                 elif action == "rebalance":
                     if root is not None:
-                        size = root.get_tree_size()  # Uzyskanie rozmiaru drzewa
-                        root = rebalance_vined_tree(create_vined_tree(root), root.get_tree_size())
-                        print("Tree rebalanced")
+                        root = balanceAVL(root)
+                        print("Tree rebalanced!")
                     else:
-                        print("Cannot rebalance: tree is empty.")
+                        print("The tree is empty")
+                
+                elif action == "Exit":
+                    break
 
                 elif action == "exit":
                     break
