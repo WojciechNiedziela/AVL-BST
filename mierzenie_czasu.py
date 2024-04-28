@@ -1,8 +1,11 @@
 # uruchomienie programu: python program.py --tree BST / AVL
 
+# sprwdzic czy wszystko dziala
 
-# DO ZMIERZENIA
 
+DO_ZMIERZENIA = 'find_min_max' # nazwa funkcji do zmierzenia czasu
+
+_total_time = 0
 # (a) tworzenie drzewa AVL metodą połowienia binarnego,
 # (b) tworzenie drzewa BST poprzez wstawianie kolejno elementów (drzewo zdegnerowane),
 # (c) wyszukiwanie elementów o minimalnej i maksymalnej wartości,
@@ -58,14 +61,14 @@ def print_total_time(node, method_name):
     else:
         print(f"Funkcja {func.__name__} nie została jeszcze wywołana.")
 
-def print_total_time_not_in_class(func):
+def print_total_time_not_in_class(func, sort_time):
     if hasattr(func, '_total_time'):
-        # Append func._total_time to the end of the file named results
+        total_time = func._total_time + sort_time
+        # Append total_time to the end of the file named results
         with open('results.txt', 'a') as f:
-            f.write(str(func._total_time) + '\n')
+            f.write(str(total_time) + '\n')
     else:
         print(f"Funkcja {func.__name__} nie została jeszcze wywołana.")
-
 
 class Node: #klasa tworząca nowy typ danych - wierzchołek
     def __init__(self, key): # konstruktor pozwalający stworzyc nowy obiekt klasy
@@ -166,74 +169,6 @@ class Node: #klasa tworząca nowy typ danych - wierzchołek
                 tex_file.write("    child [missing] ")
 
         
-def help():
-    print("Help         -   Show this message")
-    print("FindMinMax   -   Finding minimum and maximum in the tree")
-    print("Print        -   Print the tree using In-order, Pre-order, Post-order")
-    print("Remove       -   Remove elements of the tree")
-    print("RemoveAll    -   Delete whole tree")
-    print("Export       -   Export the tree to tikzpicture")
-    print("Rebalance    -   Rebalance the tree - only")
-    print("Exit Exits the program (same as ctrl+D)")
-
-@timer_decorator
-def insert(root, key): #funkcja czytajaca wierzcholek BST i ustawiająca go w odpowiednim miejscu w zaleznosci od jego wartosci
-    if root is None:
-        return Node(key)
-    else:
-        if root.val < key:
-            root.right = insert(root.right, key)
-        else:
-            root.left = insert(root.left, key)
-    return root
-
-
-def bstToVine(grand: Node) -> int:
-    count = 0
-    tmp = grand.right
-    while tmp:
- 
-        if tmp.left:
-            oldTmp = tmp
-            tmp = tmp.left
-            oldTmp.left = tmp.right
-            tmp.right = oldTmp
-            grand.right = tmp
-
-        else:
-            count += 1
-            grand = tmp
-            tmp = tmp.right
- 
-    return count
- 
-def compress(grand: Node, m: int) -> None:
-    tmp = grand.right
-    for i in range(m):
-        oldTmp = tmp
-        tmp = tmp.right
-        grand.right = tmp
-        oldTmp.right = tmp.left
-        tmp.left = oldTmp
-        grand = tmp
-        tmp = tmp.right
-
-
-@timer_decorator
-def balanceBST(root: Node) -> Node:
- 
-    grand = Node(0)
-    grand.right = root
-    count = bstToVine(grand)
-    h = int(math.log2(count + 1))
-    m = pow(2, h) - 1
-    compress(grand, count - m)
-    for m in [m // 2**i for i in range(1, h + 1)]:
-        compress(grand, m)
-
-    return grand.right
-
-
 class AVLNode:
     def __init__(self, key):
         self.val = key
@@ -358,12 +293,29 @@ class AVLNode:
             else:
                 tex_file.write("    child [missing] ")
 
-    # Metoda do znajdowania najmniejszego elementu w drzewie
-    def minValueNode(self):
+
+    def minValueNode(self): #zwraca najmniejszy wierzcholek
         current = self
-        while current.left is not None:
+
+        while(current.left is not None):
             current = current.left
+
         return current
+    
+    # Metoda do znajdowania najmniejszego i największegoelementu w drzewie
+    @timer_decorator
+    def find_min_max(root):
+        if root is None:
+            print("Drzewo jest puste")
+            return None, None
+
+        min_node = root.minValueNode()
+        current = root
+        while current.right:
+            current = current.right
+        max_node = current
+        
+        return min_node.val, max_node.val
 
     # Usuwanie elementów
     def remove(self, key):
@@ -395,6 +347,115 @@ class AVLNode:
         return None
 
 
+def help():
+    print("Help         -   Show this message")
+    print("FindMinMax   -   Finding minimum and maximum in the tree")
+    print("Print        -   Print the tree using In-order, Pre-order, Post-order")
+    print("Remove       -   Remove elements of the tree")
+    print("RemoveAll    -   Delete whole tree")
+    print("Export       -   Export the tree to tikzpicture")
+    print("Rebalance    -   Rebalance the tree - only")
+    print("Exit Exits the program (same as ctrl+D)")
+
+@timer_decorator
+def insert(root, key): #funkcja czytajaca wierzcholek BST i ustawiająca go w odpowiednim miejscu w zaleznosci od jego wartosci
+    if root is None:
+        return Node(key)
+    else:
+        if root.val < key:
+            root.right = insert(root.right, key)
+        else:
+            root.left = insert(root.left, key)
+    return root
+
+
+def AVLToVine(grand: Node) -> int:
+    count = 0
+    tmp = grand.right
+    while tmp:
+ 
+        if tmp.left:
+            oldTmp = tmp
+            tmp = tmp.left
+            oldTmp.left = tmp.right
+            tmp.right = oldTmp
+            grand.right = tmp
+
+        else:
+            count += 1
+            grand = tmp
+            tmp = tmp.right
+ 
+    return count
+ 
+def AVLcompress(grand: AVLNode, m: int) -> None:
+    tmp = grand.right
+    for i in range(m):
+        oldTmp = tmp
+        tmp = tmp.right
+        grand.right = tmp
+        oldTmp.right = tmp.left
+        tmp.left = oldTmp
+        grand = tmp
+        tmp = tmp.right
+ 
+def balanceAVL(root: AVLNode) -> Node:
+ 
+    grand = AVLNode(0)
+    grand.right = root
+    count = AVLToVine(grand)
+    h = int(math.log2(count + 1))
+    m = pow(2, h) - 1
+    AVLcompress(grand, count - m)
+    for m in [m // 2**i for i in range(1, h + 1)]:
+        AVLcompress(grand, m)
+
+    return grand.right
+
+
+def bstToVine(grand: Node) -> int:
+    count = 0
+    tmp = grand.right
+    while tmp:
+ 
+        if tmp.left:
+            oldTmp = tmp
+            tmp = tmp.left
+            oldTmp.left = tmp.right
+            tmp.right = oldTmp
+            grand.right = tmp
+
+        else:
+            count += 1
+            grand = tmp
+            tmp = tmp.right
+ 
+    return count
+ 
+def compress(grand: Node, m: int) -> None:
+    tmp = grand.right
+    for i in range(m):
+        oldTmp = tmp
+        tmp = tmp.right
+        grand.right = tmp
+        oldTmp.right = tmp.left
+        tmp.left = oldTmp
+        grand = tmp
+        tmp = tmp.right
+
+@timer_decorator
+def balanceBST(root: Node) -> Node:
+ 
+    grand = Node(0)
+    grand.right = root
+    count = bstToVine(grand)
+    h = int(math.log2(count + 1))
+    m = pow(2, h) - 1
+    compress(grand, count - m)
+    for m in [m // 2**i for i in range(1, h + 1)]:
+        compress(grand, m)
+
+    return grand.right
 
 
 FUNCTIONS = {
@@ -407,6 +468,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--tree", type=str, help="Type of the tree")
     args = parser.parse_args()
+    sort_time = 0
+
 
     if args.tree == "BST_test":
         data_folder = 'data'
@@ -492,7 +555,7 @@ def main():
                         elif action == "PrintTotalTime":
 
                             # print_total_time(root, DO_ZMIERZENIA) # -> w przypadku klasy
-                            print_total_time_not_in_class(FUNCTIONS[DO_ZMIERZENIA]) # -> w przypadku funkcji
+                            print_total_time_not_in_class(FUNCTIONS[DO_ZMIERZENIA], sort_time) # -> w przypadku funkcji
                 else:
                     print("Ilość podanych wierzchołków nie jest równa n")
 
@@ -509,8 +572,14 @@ def main():
                 action2 = lines[3].strip()  # nazwa funkcji 2
                 action3 = lines[4].strip()  # nazwa funkcji 3
 
-                nums.sort()
-
+                if DO_ZMIERZENIA == 'construct_avl_from_sorted_list':
+                    start_time = time.time()
+                    nums.sort()  # line 513
+                    sort_time = time.time() - start_time
+                    # _total_time += sort_time
+                else:
+                    nums.sort()
+                    sort_time = 0
     #######################################################################
                 @timer_decorator
                 def construct_avl_from_sorted_list(nums):
@@ -525,12 +594,9 @@ def main():
         
     #######################################################################
 
-
-
                 FUNCTIONS_AVL = {
                     'construct_avl_from_sorted_list': construct_avl_from_sorted_list,
                 }
-
 
                 if len(nums) == n:
                     print("Sorted:", ",".join(map(str, nums)))
@@ -555,12 +621,9 @@ def main():
                 
                             elif action == "findMinMax":
                                 if root is not None:
-                                    min_node = root.minValueNode()
-                                    current = root
-                                    while current.right:
-                                        current = current.right
-                                    max_node = current
-                                    print(f"Min: {min_node.val}\nMax: {max_node.val}")
+                                    min_val, max_val = root.find_min_max()
+                                    if min_val is not None and max_val is not None:
+                                        print(f"Min: {min_val}\nMax: {max_val}")
                                 else:
                                     print("Drzewo jest puste")
 
@@ -598,14 +661,6 @@ def main():
                                     print("Tree deleted")
                                 else:
                                     print("Cannot delete: tree is empty.")
-                
-                            elif action == "rebalance":
-                                if root is not None:
-                                    size = root.get_tree_size()  # Uzyskanie rozmiaru drzewa
-                                    root = rebalance_vined_tree(create_vined_tree(root), root.get_tree_size())
-                                    print("Tree rebalanced")
-                                else:
-                                    print("Cannot rebalance: tree is empty.")
 
                             elif action == "exit":
                                 break
@@ -613,7 +668,7 @@ def main():
                             elif action == "PrintTotalTime":
 
                                 print_total_time(root, DO_ZMIERZENIA) # -> w przypadku klasy
-                                # print_total_time_not_in_class(FUNCTIONS_AVL[DO_ZMIERZENIA]) # -> w przypadku funkcji
+                                # print_total_time_not_in_class(FUNCTIONS_AVL[DO_ZMIERZENIA], sort_time) # -> w przypadku funkcji
 
     else:
         print("Invalid tree type. Please use --tree BST_test or --tree AVL_test.")

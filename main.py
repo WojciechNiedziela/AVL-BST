@@ -2,11 +2,11 @@
 
 import argparse, time, math
 
-class Node: #klasa tworząca nowy typ danych - wierzchołek
-    def __init__(self, key): # konstruktor pozwalający stworzyc nowy obiekt klasy
-        self.left = None # jego lewe dziecko
-        self.right = None # jego prawe dziecko
-        self.val = key # warttosc wierzcholka
+class Node: 
+    def __init__(self, key): 
+        self.left = None 
+        self.right = None
+        self.val = key
 
     def print_inorder(self):
         if self.left:
@@ -293,7 +293,7 @@ def help():
     print("Rebalance    -   Rebalance the tree")
     print("Exit         -   Exits the program (same as ctrl+D)")
 
-def insert(root, key): #funkcja czytajaca wierzcholek BST i ustawiająca go w odpowiednim miejscu w zaleznosci od jego wartosci
+def insert(root, key): 
     if root is None:
         return Node(key)
     else:
@@ -346,7 +346,7 @@ def balanceAVL(root: AVLNode) -> Node:
 
     return grand.right
 
-def bstToVine(grand: Node) -> int:
+def bstToVine(grand: Node) -> int: #funkcja tworząca drzewo w kształcie winorośli
     count = 0
     tmp = grand.right
     while tmp:
@@ -365,7 +365,7 @@ def bstToVine(grand: Node) -> int:
  
     return count
  
-def compress(grand: Node, m: int) -> None: #funkcja kompresująca drzewo -> to vine
+def compress(grand: Node, m: int) -> None: #funkcja kompresująca drzewo -> obraca w lewo co drugi element
     tmp = grand.right
     for i in range(m):
         oldTmp = tmp
