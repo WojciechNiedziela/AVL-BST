@@ -3,7 +3,7 @@
 # sprwdzic czy wszystko dziala
 
 
-DO_ZMIERZENIA = 'find_min_max' # nazwa funkcji do zmierzenia czasu
+DO_ZMIERZENIA = 'balanceBST' # nazwa funkcji do zmierzenia czasu
 
 _total_time = 0
 # (a) tworzenie drzewa AVL metodą połowienia binarnego,
@@ -25,7 +25,9 @@ _total_time = 0
 # find_min_max  - FindMinMax
 # print_inorder - Print
 
-import argparse, time, math, os, subprocess
+import argparse, time, math, os, subprocess, sys, re
+
+sys.setrecursionlimit(1000000000)
 
 
 def run_files_from_folder(folder):
@@ -56,16 +58,18 @@ def print_total_time(node, method_name):
     func = getattr(node, method_name)
     if hasattr(func, '_total_time'):
         # Append func._total_time to the end of the file named results
-        with open('results.txt', 'a') as f:
+        with open('results_rebalance_bst_degraded_250-2625.txt', 'a') as f:
             f.write(str(func._total_time) + '\n')
     else:
         print(f"Funkcja {func.__name__} nie została jeszcze wywołana.")
+
+
 
 def print_total_time_not_in_class(func, sort_time):
     if hasattr(func, '_total_time'):
         total_time = func._total_time + sort_time
         # Append total_time to the end of the file named results
-        with open('results.txt', 'a') as f:
+        with open('results_rebalance_bst_random_2^n.txt', 'a') as f:
             f.write(str(total_time) + '\n')
     else:
         print(f"Funkcja {func.__name__} nie została jeszcze wywołana.")
@@ -90,6 +94,14 @@ class Node: #klasa tworząca nowy typ danych - wierzchołek
         if self.right:
             self.right.print_preorder()
 
+    def print_preorder(self):
+        print(self.val, end=' ')
+        if self.left:
+            self.left.print_preorder()
+        if self.right:
+            self.right.print_preorder()
+    
+    
     @timer_decorator
     def find_min_max(self): #zwraca wartosc wierzcholkow
         min_val = self.val
@@ -473,7 +485,9 @@ def main():
 
     if args.tree == "BST_test":
         data_folder = 'data'
-        for filename in os.listdir(data_folder):
+        files = os.listdir(data_folder)
+        files = sorted(files, key=lambda f: int(re.search(r'file(\d+)', f).group(1)))
+        for filename in files:
             file_path = os.path.join(data_folder, filename)
             with open(file_path, 'r') as file:
                 # Wczytaj dane z pliku
@@ -555,13 +569,16 @@ def main():
                         elif action == "PrintTotalTime":
 
                             # print_total_time(root, DO_ZMIERZENIA) # -> w przypadku klasy
+                            # print_total_time(root, DO_ZMIERZENIA, filename)
                             print_total_time_not_in_class(FUNCTIONS[DO_ZMIERZENIA], sort_time) # -> w przypadku funkcji
                 else:
                     print("Ilość podanych wierzchołków nie jest równa n")
 
     elif args.tree == "AVL_test":
         data_folder = 'data'
-        for filename in os.listdir(data_folder):
+        files = os.listdir(data_folder)
+        files = sorted(files, key=lambda f: int(re.search(r'file(\d+)', f).group(1)))
+        for filename in files:
             file_path = os.path.join(data_folder, filename)
             with open(file_path, 'r') as file:
                 # Wczytaj dane z pliku
@@ -619,7 +636,7 @@ def main():
                             elif action == "help":
                                 help()
                 
-                            elif action == "findMinMax":
+                            elif action == "FindMinMax":
                                 if root is not None:
                                     min_val, max_val = root.find_min_max()
                                     if min_val is not None and max_val is not None:
